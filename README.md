@@ -1,14 +1,18 @@
 # boopbox
 
-A Turborepo monorepo containing a Fastify API.
+A sound-catalog application. See `docs/ARCHITECTURE.md` for full architecture.
 
 ## Structure
 
 ```
 apps/
-  api/          # Fastify API server
+  server/        # Effect HTTP server
 packages/
-  typescript-config/   # Shared tsconfig.json
+  domain/              # Shared types, schemas, pure logic
+  typescript-config/   # Shared tsconfig bases
+data/
+  catalog.json         # Sound catalog
+  sounds/              # MP3 files
 ```
 
 ## Getting Started
@@ -31,15 +35,9 @@ pnpm dev
 pnpm build
 ```
 
-### Start (after build)
-
-```sh
-cd apps/api && node dist/server.js
-```
-
 ## Tech Stack
 
-- [Fastify](https://fastify.dev/) — API framework
+- [Effect](https://effect.website/) — typed errors, services, layers, HTTP
 - [TypeScript](https://www.typescriptlang.org/) — static type checking
 - [Turborepo](https://turborepo.dev/) — monorepo build system
 - [pnpm](https://pnpm.io/) — package manager

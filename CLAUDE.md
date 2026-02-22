@@ -31,6 +31,7 @@ pnpm --filter <app> build
 See packages' AGENTS.md, if present, for package-specific instructions.
 
 <!-- effect-solutions:start -->
+
 ## Effect Best Practices
 
 **IMPORTANT:** Always consult effect-solutions before writing Effect code.
@@ -42,8 +43,8 @@ See packages' AGENTS.md, if present, for package-specific instructions.
 Topics: quick-start, project-setup, tsconfig, basics, services-and-layers, data-modeling, error-handling, config, testing, cli.
 
 Never guess at Effect patterns - check the guide first.
-<!-- effect-solutions:end -->
 
+<!-- effect-solutions:end -->
 
 ## Plan Mode
 

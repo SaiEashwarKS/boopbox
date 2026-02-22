@@ -26,9 +26,6 @@
     "*.{ts,tsx,js,jsx}": [
       "oxlint --fix",
       "oxfmt"
-    ],
-    "*.{json,yaml,yml}": [
-      "oxfmt"
     ]
   },
   "engines": {
