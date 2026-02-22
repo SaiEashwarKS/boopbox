@@ -1,10 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Project Overview
-
-This is a Turborepo monorepo using pnpm workspaces.
+Boopbox is a sound-catalog application. See `docs/ARCHITECTURE.md` for full architecture, dependency graph, and design decisions.
 
 ## Commands
 
@@ -27,17 +23,10 @@ pnpm --filter <app> dev
 pnpm --filter <app> build
 ```
 
-## Architecture
-
-- `apps/api` — Fastify 5 server (ESM, TypeScript).
-- `packages/typescript-config` — Shared `tsconfig` bases.
-
-### Key conventions
+## Key Conventions
 
 - **ESM throughout** — All imports use `.js` extensions. Module resolution is `NodeNext`.
 - **Strict TypeScript** — `strict: true`, `noUncheckedIndexedAccess: true`.
-- **Fastify autoload pattern** — Plugins from `src/plugins/` load first, then routes from `src/routes/`. Routes are auto-prefixed by directory name.
-- **Fastify plugins use `fastify-plugin` (`fp`)** to share decorators/hooks with routes.
 
 See packages' AGENTS.md, if present, for package-specific instructions.
 
