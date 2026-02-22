@@ -3,18 +3,35 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "lint:types": "oxlint --type-aware",
+    "lint:ci": "oxlint --type-aware --type-check --deny-warnings",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "oxfmt": "^0.34.0",
+    "oxlint": "^1.49.0",
     "turbo": "^2.8.10",
     "typescript": "5.9.2"
   },
-  "packageManager": "pnpm@9.0.0",
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "oxlint --fix",
+      "oxfmt"
+    ],
+    "*.{json,yaml,yml}": [
+      "oxfmt"
+    ]
+  },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "packageManager": "pnpm@9.0.0"
 }
