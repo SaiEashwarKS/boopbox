@@ -11,9 +11,10 @@
     "lint:ci": "oxlint --type-aware --type-check --deny-warnings",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "prepare": "husky"
+    "prepare": "husky && effect-language-service patch"
   },
   "devDependencies": {
+    "@effect/language-service": "^0.75.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "oxfmt": "^0.34.0",
