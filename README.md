@@ -1,6 +1,6 @@
 # boopbox
 
-A sound-catalog application. See `docs/ARCHITECTURE.md` for full architecture.
+A sound-catalog application — browse, search, and play short audio clips across web, mobile, and macOS.
 
 ## Structure
 

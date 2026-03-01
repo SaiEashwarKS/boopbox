@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Boopbox is a sound-catalog application. See `docs/ARCHITECTURE.md` for full architecture, dependency graph, and design decisions.
+Boopbox is a sound-catalog app — users browse, search, and play short audio clips. Central server hosts catalog + audio files; clients consume it.
 
 ## Commands
 
@@ -22,13 +22,6 @@ pnpm fmt:check       # check formatting without writing
 pnpm --filter <app> dev
 pnpm --filter <app> build
 ```
-
-## Key Conventions
-
-- **ESM throughout** — All imports use `.js` extensions. Module resolution is `NodeNext`.
-- **Strict TypeScript** — `strict: true`, `noUncheckedIndexedAccess: true`.
-
-See packages' AGENTS.md, if present, for package-specific instructions.
 
 <!-- effect-solutions:start -->
 
