@@ -1,20 +1,42 @@
 import * as Schema from "effect/Schema";
 
-import { Sound } from "./Sound.js";
+import { Sound, SoundFilename } from "./Sound.js";
 
-export const Catalog = Schema.Array(Sound);
+// ---------------------------------------------------------------------------
+// On-disk format
+// ---------------------------------------------------------------------------
 
-export type Catalog = typeof Catalog.Type;
+export class CatalogFile extends Schema.Class<CatalogFile>("CatalogFile")({
+  revision: Schema.NonNegative.pipe(Schema.int(), Schema.brand("NonNegativeInt")),
+  sounds: Schema.Array(Sound),
+}) {}
 
-export const search = (catalog: Catalog, query: string): Catalog => {
+// ---------------------------------------------------------------------------
+// API response schemas
+// ---------------------------------------------------------------------------
+
+export class CatalogManifest extends Schema.Class<CatalogManifest>("CatalogManifest")({
+  revision: CatalogFile.fields.revision,
+  filenames: Schema.Array(SoundFilename),
+}) {}
+
+export class CatalogPage extends Schema.Class<CatalogPage>("CatalogPage")({
+  revision: CatalogFile.fields.revision,
+  sounds: Schema.Array(Sound),
+  offset: Schema.NonNegative.pipe(Schema.int()),
+  limit: Schema.Positive.pipe(Schema.int()),
+  total: Schema.NonNegative.pipe(Schema.int()),
+}) {}
+
+export const search = (sounds: ReadonlyArray<Sound>, query: string): ReadonlyArray<Sound> => {
   const q = query.trim().toLowerCase();
-  if (q === "") return catalog;
-  return catalog.filter(
+  if (q === "") return sounds;
+  return sounds.filter(
     (sound) =>
       sound.name.toLowerCase().includes(q) ||
       sound.tags.some((tag) => tag.toLowerCase().includes(q)),
   );
 };
 
-export const findByFilename = (catalog: Catalog, filename: string): Sound | undefined =>
-  catalog.find((sound) => sound.filename === filename);
+export const findByFilename = (sounds: ReadonlyArray<Sound>, filename: string): Sound | undefined =>
+  sounds.find((sound) => sound.filename === filename);

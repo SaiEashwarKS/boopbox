@@ -1,6 +1,8 @@
 import * as Schema from "effect/Schema";
 
-import { SoundFilename } from "./SoundFilename.js";
+export const SoundFilename = Schema.NonEmptyTrimmedString.pipe(Schema.brand("SoundFilename"));
+
+export type SoundFilename = typeof SoundFilename.Type;
 
 export class Sound extends Schema.Class<Sound>("Sound")({
   name: Schema.NonEmptyTrimmedString,

@@ -1,7 +1,10 @@
-[
-  {
-    "name": "Faaah",
-    "tags": ["meme"],
-    "filename": "faaah.mp3"
-  }
-]
+{
+  "revision": 1,
+  "sounds": [
+    {
+      "name": "Faaah",
+      "tags": ["meme"],
+      "filename": "faaah.mp3"
+    }
+  ]
+}

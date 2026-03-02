@@ -1,19 +1,11 @@
 import { FileSystem, Path } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Catalog, type SoundFilename } from "@repo/domain";
+import { CatalogFile, type SoundFilename } from "@repo/domain";
 import { Config, Context, Effect, Layer, Schema } from "effect";
 
-const CatalogJson = Schema.parseJson(Catalog);
-
-// ---------------------------------------------------------------------------
-// Config
-// ---------------------------------------------------------------------------
+const CatalogJson = Schema.parseJson(CatalogFile);
 
 const DataDir = Config.string("DATA_DIR").pipe(Config.withDefault("../../data"));
-
-// ---------------------------------------------------------------------------
-// Errors
-// ---------------------------------------------------------------------------
 
 export class CatalogStorageError extends Schema.TaggedError<CatalogStorageError>()(
   "CatalogStorageError",
@@ -25,14 +17,10 @@ export class SoundFileStorageError extends Schema.TaggedError<SoundFileStorageEr
   { message: Schema.String, cause: Schema.Defect },
 ) {}
 
-// ---------------------------------------------------------------------------
-// CatalogStorage
-// ---------------------------------------------------------------------------
-
 export class CatalogStorage extends Context.Tag("@boopbox/CatalogStorage")<
   CatalogStorage,
   {
-    readonly read: () => Effect.Effect<Catalog, CatalogStorageError>;
+    readonly read: () => Effect.Effect<CatalogFile>;
   }
 >() {
   static readonly layer = Layer.effect(
@@ -43,24 +31,33 @@ export class CatalogStorage extends Context.Tag("@boopbox/CatalogStorage")<
       const dataDir = yield* DataDir;
       const catPath = path.join(dataDir, "catalog.json");
 
-      const read = () =>
-        Effect.gen(function* () {
-          const raw = yield* fs.readFileString(catPath);
-          return yield* Schema.decode(CatalogJson)(raw);
-        }).pipe(
-          Effect.catchAll(
-            (cause) => new CatalogStorageError({ message: "Failed to read catalog", cause }),
-          ),
-        );
+      const raw = yield* fs.readFileString(catPath).pipe(
+        Effect.catchAll(
+          (cause) =>
+            new CatalogStorageError({
+              message: "Failed to read catalog",
+              cause,
+            }),
+        ),
+      );
+      const catalog = yield* Schema.decode(CatalogJson)(raw).pipe(
+        Effect.catchAll(
+          (cause) =>
+            new CatalogStorageError({
+              message: "Failed to decode catalog",
+              cause,
+            }),
+        ),
+      );
 
-      return CatalogStorage.of({ read });
+      yield* Effect.logInfo(
+        `Catalog loaded — revision ${catalog.revision}, ${catalog.sounds.length} sound(s)`,
+      );
+
+      return CatalogStorage.of({ read: () => Effect.succeed(catalog) });
     }),
   );
 }
-
-// ---------------------------------------------------------------------------
-// SoundFileStorage
-// ---------------------------------------------------------------------------
 
 export class SoundFileStorage extends Context.Tag("@boopbox/SoundFileStorage")<
   SoundFileStorage,
@@ -78,14 +75,15 @@ export class SoundFileStorage extends Context.Tag("@boopbox/SoundFileStorage")<
       const sndDir = path.join(dataDir, "sounds");
 
       const exists = (filename: SoundFilename) =>
-        fs
-          .exists(path.join(sndDir, filename))
-          .pipe(
-            Effect.catchAll(
-              (cause) =>
-                new SoundFileStorageError({ message: "Failed to check sound file", cause }),
-            ),
-          );
+        fs.exists(path.join(sndDir, filename)).pipe(
+          Effect.catchAll(
+            (cause) =>
+              new SoundFileStorageError({
+                message: "Failed to check sound file",
+                cause,
+              }),
+          ),
+        );
 
       const filePath = (filename: SoundFilename) => path.join(sndDir, filename);
 
@@ -93,10 +91,6 @@ export class SoundFileStorage extends Context.Tag("@boopbox/SoundFileStorage")<
     }),
   );
 }
-
-// ---------------------------------------------------------------------------
-// Combined layer
-// ---------------------------------------------------------------------------
 
 export const StorageLayer = Layer.mergeAll(CatalogStorage.layer, SoundFileStorage.layer).pipe(
   Layer.provide(NodeFileSystem.layer),
