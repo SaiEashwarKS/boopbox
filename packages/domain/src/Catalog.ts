@@ -38,5 +38,10 @@ export const search = (sounds: ReadonlyArray<Sound>, query: string): ReadonlyArr
   );
 };
 
+export class Catalog extends Schema.Class<Catalog>("Catalog")({
+  revision: CatalogFile.fields.revision,
+  sounds: Schema.Array(Sound),
+}) {}
+
 export const findByFilename = (sounds: ReadonlyArray<Sound>, filename: string): Sound | undefined =>
   sounds.find((sound) => sound.filename === filename);
