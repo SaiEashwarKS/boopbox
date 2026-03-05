@@ -3,6 +3,7 @@ import {
   Action,
   List,
   Icon,
+  Color,
   getPreferenceValues,
   showToast,
   Toast,
@@ -12,6 +13,12 @@ import { exec } from "node:child_process";
 import { useState, useEffect, useCallback } from "react";
 
 import { soundFilePath } from "./lib/cache.js";
+import {
+  type Favourites,
+  readFavourites,
+  toggleFavourite,
+  sortWithFavourites,
+} from "./lib/favourites.js";
 import { loadCatalog, type SyncState } from "./lib/sync.js";
 
 interface Preferences {
@@ -42,6 +49,7 @@ export default function Command() {
     phase: "loading-cache",
   });
   const [searchText, setSearchText] = useState("");
+  const [favourites, setFavourites] = useState<Favourites>({} as Favourites);
 
   const isLoading = syncState.phase !== "done" && syncState.phase !== "error";
 
@@ -53,6 +61,7 @@ export default function Command() {
   }, []);
 
   useEffect(() => {
+    readFavourites().then(setFavourites);
     loadCatalog(serverUrl, onProgress).catch((err) => {
       setSyncState({ phase: "error", message: String(err) });
       showToast({
@@ -63,7 +72,7 @@ export default function Command() {
     });
   }, [serverUrl, onProgress]);
 
-  const filtered = search(sounds, searchText);
+  const filtered = sortWithFavourites(search([...sounds], searchText), favourites);
   const subtitle = statusText(syncState);
 
   return (
@@ -84,7 +93,10 @@ export default function Command() {
           key={sound.filename}
           title={sound.name}
           subtitle={sound.tags.join(", ")}
-          icon={Icon.Speaker}
+          keywords={[...sound.tags]}
+          {...(sound.filename in favourites
+            ? { icon: { source: Icon.StarCircle, tintColor: Color.Yellow } }
+            : {})}
           actions={
             <ActionPanel>
               <Action
@@ -99,6 +111,14 @@ export default function Command() {
                         title: "Playback failed",
                       });
                   });
+                }}
+              />
+              <Action
+                title="Toggle Favourite"
+                icon={Icon.Star}
+                shortcut={{ modifiers: ["cmd"], key: "f" }}
+                onAction={() => {
+                  toggleFavourite(sound.filename).then(setFavourites);
                 }}
               />
               <Action.CopyToClipboard title="Copy Name" content={sound.name} />
