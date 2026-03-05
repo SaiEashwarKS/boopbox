@@ -13,6 +13,7 @@ import { exec, type ChildProcess } from "node:child_process";
 import { useState, useEffect, useCallback } from "react";
 
 let currentPlayer: ChildProcess | null = null;
+let currentFilename: string | null = null;
 
 import { soundFilePath } from "./lib/cache.js";
 import {
@@ -105,10 +106,19 @@ export default function Command() {
                 title="Play Sound"
                 icon={Icon.Play}
                 onAction={() => {
+                  if (currentFilename === sound.filename && currentPlayer) {
+                    currentPlayer.kill();
+                    currentPlayer = null;
+                    currentFilename = null;
+                    return;
+                  }
                   currentPlayer?.kill();
                   const fp = soundFilePath(sound.filename);
                   const proc = exec(`afplay "${fp}"`, (err) => {
-                    if (proc === currentPlayer) currentPlayer = null;
+                    if (proc === currentPlayer) {
+                      currentPlayer = null;
+                      currentFilename = null;
+                    }
                     if (err && !proc.killed)
                       showToast({
                         style: Toast.Style.Failure,
@@ -116,6 +126,7 @@ export default function Command() {
                       });
                   });
                   currentPlayer = proc;
+                  currentFilename = sound.filename;
                 }}
               />
               <Action
