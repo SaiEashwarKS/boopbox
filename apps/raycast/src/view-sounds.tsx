@@ -9,8 +9,10 @@ import {
   Toast,
 } from "@raycast/api";
 import { search, type Sound } from "@repo/domain";
-import { exec } from "node:child_process";
+import { exec, type ChildProcess } from "node:child_process";
 import { useState, useEffect, useCallback } from "react";
+
+let currentPlayer: ChildProcess | null = null;
 
 import { soundFilePath } from "./lib/cache.js";
 import {
@@ -103,14 +105,17 @@ export default function Command() {
                 title="Play Sound"
                 icon={Icon.Play}
                 onAction={() => {
+                  currentPlayer?.kill();
                   const fp = soundFilePath(sound.filename);
-                  exec(`afplay "${fp}"`, (err) => {
-                    if (err)
+                  const proc = exec(`afplay "${fp}"`, (err) => {
+                    if (proc === currentPlayer) currentPlayer = null;
+                    if (err && !proc.killed)
                       showToast({
                         style: Toast.Style.Failure,
                         title: "Playback failed",
                       });
                   });
+                  currentPlayer = proc;
                 }}
               />
               <Action
