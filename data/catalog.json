@@ -1,10 +1,15 @@
 {
-  "revision": 1,
+  "revision": 2,
   "sounds": [
     {
       "name": "Faaah",
-      "tags": ["meme"],
+      "tags": [],
       "filename": "faaah.mp3"
+    },
+    {
+      "name": "Vine Boom",
+      "tags": [],
+      "filename": "vine-boom.mp3"
     }
   ]
 }
