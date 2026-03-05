@@ -24,9 +24,9 @@
   ],
   "commands": [
     {
-      "name": "view-sounds",
-      "title": "View sounds",
-      "description": "View all sounds",
+      "name": "sound-board",
+      "title": "Sound Board",
+      "description": "Browse sounds",
       "mode": "view"
     }
   ],
