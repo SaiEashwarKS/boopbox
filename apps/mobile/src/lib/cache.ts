@@ -13,7 +13,9 @@ export const readCachedCatalog = async (): Promise<Catalog | null> => {
   try {
     const json = JSON.parse(raw);
     return Schema.decodeUnknownSync(Catalog)(json);
-  } catch {
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn("Failed to decode cached catalog, ignoring cache", e);
     return null;
   }
 };

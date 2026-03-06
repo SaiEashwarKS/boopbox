@@ -44,7 +44,7 @@ export const loadCatalog = async (
   const newCatalog: Catalog = {
     revision: page.revision,
     sounds: [...page.sounds],
-  } as Catalog;
+  };
 
   // 5. Download missing sounds using expo-file-system
   const allFilenames = page.sounds.map((s) => s.filename);

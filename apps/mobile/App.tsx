@@ -194,7 +194,7 @@ export default function App() {
     [favourites],
   );
 
-  const filtered = sortWithFavourites(search([...sounds], searchText), favourites);
+  const filtered = sortWithFavourites(search(sounds, searchText), favourites);
   const subtitle = statusText(syncState);
 
   const renderItem = useCallback(
@@ -243,7 +243,7 @@ export default function App() {
           </View>
         ) : (
           <FlatList
-            data={filtered as Sound[]}
+            data={filtered}
             renderItem={renderItem}
             keyExtractor={(item) => item.filename}
             contentContainerStyle={styles.list}
