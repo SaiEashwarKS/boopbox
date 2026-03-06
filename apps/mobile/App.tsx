@@ -25,6 +25,7 @@ import {
   isFavourite,
 } from "./src/lib/favourites";
 import { loadCatalog, type SyncState } from "./src/lib/sync";
+import { updateWidget } from "./src/lib/widget";
 
 const SERVER_URL = "http://localhost:3000";
 
@@ -150,6 +151,12 @@ export default function App() {
       soundRef.current?.unloadAsync();
     };
   }, []);
+
+  useEffect(() => {
+    if (sounds.length > 0) {
+      updateWidget(sounds, favourites);
+    }
+  }, [sounds, favourites]);
 
   const playSound = useCallback(
     async (filename: string) => {

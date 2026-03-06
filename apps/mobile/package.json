@@ -12,6 +12,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/ui": "^55.0.1",
     "@react-native-async-storage/async-storage": "^3.0.1",
     "@repo/domain": "workspace:*",
     "effect": "^3.19.19",
@@ -19,8 +20,10 @@
     "expo-av": "^16.0.8",
     "expo-file-system": "^55.0.10",
     "expo-status-bar": "^55.0.4",
+    "expo-widgets": "^55.0.3",
     "react": "^19.2.4",
     "react-native": "^0.84.1",
+    "react-native-android-widget": "^0.20.1",
     "react-native-gesture-handler": "^2.30.0",
     "react-native-reanimated": "^4.2.2"
   },
