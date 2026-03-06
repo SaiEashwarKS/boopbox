@@ -1,4 +1,6 @@
-import { search, type Sound } from "@repo/domain";
+import type { Animated } from "react-native";
+
+import { search, type Sound, type SoundFilename } from "@repo/domain";
 import { Audio } from "expo-av";
 import { StatusBar } from "expo-status-bar";
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -12,8 +14,16 @@ import {
   SafeAreaView,
   ActivityIndicator,
 } from "react-native";
+import { GestureHandlerRootView, Swipeable } from "react-native-gesture-handler";
 
 import { soundFilePath } from "./src/lib/cache";
+import {
+  type Favourites,
+  loadFavourites,
+  toggleFavourite,
+  sortWithFavourites,
+  isFavourite,
+} from "./src/lib/favourites";
 import { loadCatalog, type SyncState } from "./src/lib/sync";
 
 const SERVER_URL = "http://localhost:3000";
@@ -35,6 +45,79 @@ const statusText = (state: SyncState): string => {
   }
 };
 
+function SwipeAction({ isFav }: { isFav: boolean }) {
+  return (
+    <View style={styles.swipeAction}>
+      <Text style={styles.swipeActionText}>{isFav ? "\u2606" : "\u2605"}</Text>
+    </View>
+  );
+}
+
+function SoundRow({
+  item,
+  isPlaying,
+  isFav,
+  onPress,
+  onToggleFavourite,
+}: {
+  item: Sound;
+  isPlaying: boolean;
+  isFav: boolean;
+  onPress: () => void;
+  onToggleFavourite: () => void;
+}) {
+  const swipeableRef = useRef<Swipeable>(null);
+
+  const handleSwipeOpen = useCallback(() => {
+    onToggleFavourite();
+    swipeableRef.current?.close();
+  }, [onToggleFavourite]);
+
+  const renderLeftActions = useCallback(
+    (
+      _progress: Animated.AnimatedInterpolation<number>,
+      _dragX: Animated.AnimatedInterpolation<number>,
+    ) => <SwipeAction isFav={isFav} />,
+    [isFav],
+  );
+
+  const renderRightActions = useCallback(
+    (
+      _progress: Animated.AnimatedInterpolation<number>,
+      _dragX: Animated.AnimatedInterpolation<number>,
+    ) => <SwipeAction isFav={isFav} />,
+    [isFav],
+  );
+
+  return (
+    <Swipeable
+      ref={swipeableRef}
+      renderLeftActions={renderLeftActions}
+      renderRightActions={renderRightActions}
+      onSwipeableWillOpen={handleSwipeOpen}
+      overshootLeft={false}
+      overshootRight={false}
+    >
+      <TouchableOpacity
+        style={[styles.row, isPlaying && styles.rowPlaying]}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
+        <View style={styles.rowContent}>
+          <View style={styles.nameRow}>
+            {isFav && <Text style={styles.star}>{"\u2605"}</Text>}
+            <Text style={[styles.name, isPlaying && styles.namePlaying]}>
+              {isPlaying ? "\u25B6 " : ""}
+              {item.name}
+            </Text>
+          </View>
+          {item.tags.length > 0 && <Text style={styles.tags}>{item.tags.join(", ")}</Text>}
+        </View>
+      </TouchableOpacity>
+    </Swipeable>
+  );
+}
+
 export default function App() {
   const [sounds, setSounds] = useState<readonly Sound[]>([]);
   const [syncState, setSyncState] = useState<SyncState>({
@@ -42,6 +125,7 @@ export default function App() {
   });
   const [searchText, setSearchText] = useState("");
   const [playingFilename, setPlayingFilename] = useState<string | null>(null);
+  const [favourites, setFavourites] = useState<Favourites>({} as Favourites);
   const soundRef = useRef<Audio.Sound | null>(null);
 
   const isLoading = syncState.phase !== "done" && syncState.phase !== "error";
@@ -54,6 +138,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    loadFavourites().then(setFavourites);
     loadCatalog(SERVER_URL, onProgress).catch((err) => {
       setSyncState({ phase: "error", message: String(err) });
     });
@@ -102,71 +187,78 @@ export default function App() {
     [playingFilename],
   );
 
-  const filtered = search([...sounds], searchText);
+  const handleToggleFavourite = useCallback(
+    (filename: SoundFilename) => {
+      toggleFavourite(filename, favourites).then(setFavourites);
+    },
+    [favourites],
+  );
+
+  const filtered = sortWithFavourites(search([...sounds], searchText), favourites);
   const subtitle = statusText(syncState);
 
   const renderItem = useCallback(
     ({ item }: { item: Sound }) => {
       const isPlaying = playingFilename === item.filename;
+      const fav = isFavourite(item.filename, favourites);
       return (
-        <TouchableOpacity
-          style={[styles.row, isPlaying && styles.rowPlaying]}
+        <SoundRow
+          item={item}
+          isPlaying={isPlaying}
+          isFav={fav}
           onPress={() => playSound(item.filename)}
-          activeOpacity={0.7}
-        >
-          <View style={styles.rowContent}>
-            <Text style={[styles.name, isPlaying && styles.namePlaying]}>
-              {isPlaying ? "\u25B6 " : ""}
-              {item.name}
-            </Text>
-            {item.tags.length > 0 && <Text style={styles.tags}>{item.tags.join(", ")}</Text>}
-          </View>
-        </TouchableOpacity>
+          onToggleFavourite={() => handleToggleFavourite(item.filename)}
+        />
       );
     },
-    [playingFilename, playSound],
+    [playingFilename, playSound, favourites, handleToggleFavourite],
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
-      <View style={styles.header}>
-        <Text style={styles.title}>Boopbox</Text>
-      </View>
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search sounds\u2026"
-          placeholderTextColor="#999"
-          value={searchText}
-          onChangeText={setSearchText}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-      </View>
-      {isLoading && subtitle ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>{subtitle}</Text>
+    <GestureHandlerRootView style={styles.flex}>
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="dark" />
+        <View style={styles.header}>
+          <Text style={styles.title}>Boopbox</Text>
         </View>
-      ) : syncState.phase === "error" ? (
-        <View style={styles.loadingContainer}>
-          <Text style={styles.errorText}>{subtitle}</Text>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search sounds\u2026"
+            placeholderTextColor="#999"
+            value={searchText}
+            onChangeText={setSearchText}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
         </View>
-      ) : (
-        <FlatList
-          data={filtered as Sound[]}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.filename}
-          contentContainerStyle={styles.list}
-          keyboardShouldPersistTaps="handled"
-        />
-      )}
-    </SafeAreaView>
+        {isLoading && subtitle ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#007AFF" />
+            <Text style={styles.loadingText}>{subtitle}</Text>
+          </View>
+        ) : syncState.phase === "error" ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.errorText}>{subtitle}</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={filtered as Sound[]}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.filename}
+            contentContainerStyle={styles.list}
+            keyboardShouldPersistTaps="handled"
+          />
+        )}
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -213,12 +305,22 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#E0E0E0",
+    backgroundColor: "#fff",
   },
   rowPlaying: {
     backgroundColor: "#E8F4FD",
   },
   rowContent: {
     gap: 4,
+  },
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  star: {
+    fontSize: 16,
+    color: "#FFD700",
   },
   name: {
     fontSize: 16,
@@ -230,5 +332,15 @@ const styles = StyleSheet.create({
   tags: {
     fontSize: 13,
     color: "#888",
+  },
+  swipeAction: {
+    backgroundColor: "#FFD700",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+  },
+  swipeActionText: {
+    fontSize: 24,
+    color: "#fff",
   },
 });
