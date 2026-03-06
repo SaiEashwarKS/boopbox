@@ -26,6 +26,26 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-av"]
+    "plugins": [
+      "expo-av",
+      [
+        "expo-widgets",
+        {
+          "widgets": [
+            {
+              "name": "SoundsWidget",
+              "displayName": "Boopbox Sounds",
+              "description": "View your sound collection at a glance",
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium",
+                "systemLarge",
+                "systemExtraLarge"
+              ]
+            }
+          ]
+        }
+      ]
+    ]
   }
 }
