@@ -25,7 +25,6 @@ import {
   isFavourite,
 } from "./src/lib/favourites";
 import { loadCatalog, type SyncState } from "./src/lib/sync";
-import { updateWidget } from "./src/lib/widget";
 
 const SERVER_URL = "http://localhost:3000";
 
@@ -144,13 +143,6 @@ export default function App() {
       setSyncState({ phase: "error", message: String(err) });
     });
   }, [onProgress]);
-
-  // Push sound list to iOS widget whenever data changes
-  useEffect(() => {
-    if (sounds.length > 0) {
-      updateWidget(sounds, favourites);
-    }
-  }, [sounds, favourites]);
 
   // Cleanup sound on unmount
   useEffect(() => {
