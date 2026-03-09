@@ -1,0 +1,69 @@
+{
+  "expo": {
+    "name": "Boopbox",
+    "slug": "boopbox",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-av",
+      [
+        "expo-widgets",
+        {
+          "widgets": [
+            {
+              "name": "SoundsWidget",
+              "displayName": "Boopbox Sounds",
+              "description": "View your sound collection at a glance",
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium",
+                "systemLarge",
+                "systemExtraLarge"
+              ]
+            }
+          ]
+        }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "SoundsWidget",
+              "label": "Boopbox Sounds",
+              "description": "View your sound collection",
+              "minWidth": "110dp",
+              "minHeight": "40dp",
+              "resizeMode": "horizontal|vertical",
+              "widgetFeatures": "reconfigurable",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}
