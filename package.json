@@ -12,7 +12,7 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "prepare": "husky && effect-language-service patch",
-    "postinstall": "git submodule update --init"
+    "postinstall": "git submodule update --init || true"
   },
   "devDependencies": {
     "@effect/language-service": "^0.75.1",
