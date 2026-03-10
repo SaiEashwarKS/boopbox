@@ -27,7 +27,7 @@ import {
 import { loadCatalog, type SyncState } from "./src/lib/sync";
 import { updateWidget } from "./src/lib/widget";
 
-const SERVER_URL = "https://server-production-7b53.up.railway.app";
+const SERVER_URL = process.env.EXPO_PUBLIC_SERVER_URL!;
 
 const statusText = (state: SyncState): string => {
   switch (state.phase) {

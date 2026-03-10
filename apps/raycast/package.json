@@ -12,16 +12,6 @@
     "Fun"
   ],
   "license": "MIT",
-  "preferences": [
-    {
-      "name": "serverUrl",
-      "title": "Server URL",
-      "type": "textfield",
-      "required": false,
-      "default": "https://server-production-7b53.up.railway.app",
-      "description": "URL of the BoopBox server"
-    }
-  ],
   "commands": [
     {
       "name": "sound-board",

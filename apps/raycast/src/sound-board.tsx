@@ -1,14 +1,7 @@
-import {
-  ActionPanel,
-  Action,
-  List,
-  Icon,
-  Color,
-  getPreferenceValues,
-  showToast,
-  Toast,
-} from "@raycast/api";
+import { ActionPanel, Action, List, Icon, Color, showToast, Toast } from "@raycast/api";
 import { search, type Sound } from "@repo/domain";
+import * as Config from "effect/Config";
+import * as Effect from "effect/Effect";
 import { exec, type ChildProcess } from "node:child_process";
 import { useState, useEffect, useCallback } from "react";
 
@@ -24,9 +17,11 @@ import {
 } from "./lib/favourites.js";
 import { loadCatalog, type SyncState } from "./lib/sync.js";
 
-interface Preferences {
-  serverUrl: string;
-}
+const serverUrl = Effect.runSync(
+  Config.string("BOOPBOX_SERVER_URL").pipe(
+    Config.withDefault("https://server-production-7b53.up.railway.app"),
+  ),
+);
 
 const statusText = (state: SyncState): string => {
   switch (state.phase) {
@@ -46,7 +41,6 @@ const statusText = (state: SyncState): string => {
 };
 
 export default function Command() {
-  const { serverUrl } = getPreferenceValues<Preferences>();
   const [sounds, setSounds] = useState<readonly Sound[]>([]);
   const [syncState, setSyncState] = useState<SyncState>({
     phase: "loading-cache",
@@ -73,7 +67,7 @@ export default function Command() {
         message: String(err),
       });
     });
-  }, [serverUrl, onProgress]);
+  }, [onProgress]);
 
   const filtered = sortWithFavourites(search([...sounds], searchText), favourites);
   const subtitle = statusText(syncState);
