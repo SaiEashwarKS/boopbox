@@ -3,7 +3,7 @@
   "name": "boopbox",
   "title": "BoopBox",
   "description": "Meme snippet registry. Mark favorites and play instantly using hotkeys",
-  "icon": "extension-icon.png",
+  "icon": "extension_icon.png",
   "author": "sai-eashwar",
   "platforms": [
     "macOS"
