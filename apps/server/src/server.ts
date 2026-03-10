@@ -9,7 +9,7 @@ import { StorageLayer } from "./Storage.js";
 const Port = Config.integer("PORT").pipe(Config.withDefault(3000));
 
 const ServerLive = Layer.unwrapEffect(
-  Config.map(Port, (port) => NodeHttpServer.layer(() => createServer(), { port })),
+  Config.map(Port, (port) => NodeHttpServer.layer(() => createServer(), { port, host: "0.0.0.0" })),
 );
 
 const HttpLive = Api.pipe(
