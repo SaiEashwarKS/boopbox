@@ -17,11 +17,7 @@ import {
 } from "./lib/favourites.js";
 import { loadCatalog, type SyncState } from "./lib/sync.js";
 
-const serverUrl = Effect.runSync(
-  Config.string("BOOPBOX_SERVER_URL").pipe(
-    Config.withDefault("https://server-production-7b53.up.railway.app"),
-  ),
-);
+const serverUrl = Effect.runSync(Config.string("BOOPBOX_SERVER_URL").pipe(Config.withDefault("")));
 
 const statusText = (state: SyncState): string => {
   switch (state.phase) {
