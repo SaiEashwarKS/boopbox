@@ -11,8 +11,7 @@
     "lint:ci": "oxlint --type-aware --type-check --deny-warnings",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "prepare": "husky && effect-language-service patch",
-    "postinstall": "git submodule update --init || true"
+    "prepare": "husky && effect-language-service patch"
   },
   "devDependencies": {
     "@effect/language-service": "^0.75.1",
