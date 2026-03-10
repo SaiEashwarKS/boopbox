@@ -18,7 +18,7 @@
       "title": "Server URL",
       "type": "textfield",
       "required": false,
-      "default": "http://localhost:3000",
+      "default": "https://server-production-7b53.up.railway.app",
       "description": "URL of the BoopBox server"
     }
   ],
