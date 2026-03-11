@@ -1,7 +1,14 @@
-import { ActionPanel, Action, List, Icon, Color, showToast, Toast } from "@raycast/api";
+import {
+  ActionPanel,
+  Action,
+  List,
+  Icon,
+  Color,
+  showToast,
+  Toast,
+  getPreferenceValues,
+} from "@raycast/api";
 import { search, type Sound } from "@repo/domain";
-import * as Config from "effect/Config";
-import * as Effect from "effect/Effect";
 import { exec, type ChildProcess } from "node:child_process";
 import { useState, useEffect, useCallback } from "react";
 
@@ -17,7 +24,7 @@ import {
 } from "./lib/favourites.js";
 import { loadCatalog, type SyncState } from "./lib/sync.js";
 
-const serverUrl = Effect.runSync(Config.string("BOOPBOX_SERVER_URL").pipe(Config.withDefault("")));
+const { serverUrl } = getPreferenceValues<{ serverUrl: string }>();
 
 const statusText = (state: SyncState): string => {
   switch (state.phase) {
@@ -57,6 +64,7 @@ export default function Command() {
     readFavourites().then(setFavourites);
     loadCatalog(serverUrl, onProgress).catch((err) => {
       setSyncState({ phase: "error", message: String(err) });
+      console.log("err", serverUrl);
       showToast({
         style: Toast.Style.Failure,
         title: "Sync failed",

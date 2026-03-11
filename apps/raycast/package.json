@@ -20,6 +20,15 @@
       "mode": "view"
     }
   ],
+  "preferences": [
+    {
+      "name": "serverUrl",
+      "title": "Server URL",
+      "description": "The URL of the BoopBox server",
+      "type": "textfield",
+      "required": true
+    }
+  ],
   "dependencies": {
     "@raycast/api": "^1.104.8",
     "@raycast/utils": "^1.17.0",
